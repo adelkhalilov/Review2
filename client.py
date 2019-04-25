@@ -24,17 +24,11 @@ def get_args():
     get_next_lesson.add_argument('--current_time', dest='current_time', help='Current_time')
     args = parser.parse_args()
     if args.action == 'add_lesson':
-        action = args.action
-        subject_name = args.subject_name
-        day_of_the_week = args.day_of_the_week
-        time_of_start = args.time_of_start
+        return args.action, args.subject_name, args.day_of_the_week, args.time_of_start, None, None
     if args.action == 'get_lessons':
-        action = args.action
+        return args.action, None, None, None, None, None
     if args.action == 'get_next_lesson':
-        action = args.action
-        current_day = args.current_day
-        current_time = args.current_time
-    return action, subject_name, day_of_the_week, time_of_start, current_time, current_day
+        return args.action, None, None, None, args.current_time, args.current_day
 
 def add_lesson(subject_name, day_of_the_week, time_of_start):
     r = requests.post('http://' + address + ':' + PORT + '/add_lesson', params={'subject_name': subject_name, 'day_of_the_week': day_of_the_week, 'time_of_start': time_of_start})
