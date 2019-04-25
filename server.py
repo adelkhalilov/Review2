@@ -1,7 +1,6 @@
 import flask
 from flask import Flask
 
-
 app = Flask(__name__)
 
 
@@ -12,9 +11,15 @@ def add_lesson():
     time_of_start = flask.request.args['time_of_start']
     return ('OK')
 
-@app.route('/get_lessons', methods=['POST'])
+@app.route('/get_lessons', methods=['GET'])
 def get_lessons():
-    return ('Timetable will be here')
+    return 'Timetable will be here'
+
+@app.route('/get_next_lesson', methods=['GET'])
+def get_next_lesson():
+    current_day = flask.request.args['current_day']
+    current_time = flask.request.args['current_time']
+    return ('Next lesson will be here. Maybe it is Math?')
 
 if __name__ == "__main__":
     PORT = '5000'
