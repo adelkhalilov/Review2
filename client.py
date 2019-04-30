@@ -6,12 +6,6 @@ PORT = '5000'
 
 
 def get_args():
-    action = None
-    subject_name = None
-    day_of_the_week = None
-    time_of_start = None
-    current_day = None
-    current_time = None
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(dest='action')
     add = subs.add_parser('add_lesson', help='Add_lesson')
@@ -28,20 +22,23 @@ def get_args():
     if args.action == 'get_lessons':
         return args.action, None, None, None, None, None
     if args.action == 'get_next_lesson':
-        return args.action, None, None, None, args.current_time, args.current_day
+        return args.action, None, None, None, args.current_day, args.current_time
+
 
 def add_lesson(subject_name, day_of_the_week, time_of_start):
     r = requests.post('http://' + address + ':' + PORT + '/add_lesson', params={'subject_name': subject_name, 'day_of_the_week': day_of_the_week, 'time_of_start': time_of_start})
-    return (r.text)
+    return r.text
 
 
 def get_lessons():
     r = requests.get('http://' + address + ':' + PORT + '/get_lessons')
-    return (r.text)
+    return r.text
+
 
 def get_next_lesson(current_day, current_time):
     r = requests.get('http://' + address + ':' + PORT + '/get_next_lesson', params={'current_day': current_day, 'current_time': current_time})
-    return (r.text)
+    return r.text
+
 
 def main():
     action = ''; subject_name = ''; day_of_the_week = ''; time_of_start = ''
