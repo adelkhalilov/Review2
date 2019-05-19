@@ -14,6 +14,7 @@ with psycopg2.connect(**params) as conn:
         CREATE TABLE timetable (
             subject_name VARCHAR(255),
             day_of_the_week VARCHAR(255),
-            time_of_start time
+            time_of_start time,
+            id INTEGER
         )
     ''')
