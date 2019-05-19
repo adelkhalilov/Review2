@@ -1,6 +1,7 @@
 import flask
 from flask import Flask
 import psycopg2
+from config import params, PORT
 
 app = Flask(__name__)
 
@@ -10,7 +11,6 @@ def add_lesson():
     subject_name_ = flask.request.args['subject_name']
     day_of_the_week_ = flask.request.args['day_of_the_week']
     time_of_start_ = flask.request.args['time_of_start']
-    params = dict(dbname="test", user="postgres", password="1234", host="localhost")
     with psycopg2.connect(**params) as conn:
         cur = conn.cursor()
         cur.execute('''
@@ -22,7 +22,6 @@ def add_lesson():
 
 @app.route('/get_lessons', methods=['GET'])
 def get_lessons():
-    params = dict(dbname="test", user="postgres", password="1234", host="localhost")
     with psycopg2.connect(**params) as conn:
         cur = conn.cursor()
         cur.execute('''SELECT DISTINCT * FROM timetable''')
@@ -42,28 +41,26 @@ def get_lessons():
 def get_next_lesson():
     current_day = flask.request.args['current_day']
     current_time = flask.request.args['current_time']
-    params = dict(dbname="test", user="postgres", password="1234", host="localhost")
+    # params = dict(dbname="test", user="postgres", password="1234", host="localhost")
     with psycopg2.connect(**params) as conn:
         cur = conn.cursor()
         cur.execute('''SELECT timetable.subject_name, timetable.day_of_the_week, MIN(timetable.time_of_start)
                 FROM timetable
                 WHERE timetable.day_of_the_week = %s AND timetable.time_of_start > %s
-                GROUP BY timetable.subject_name, timetable.day_of_the_week''', (current_day, current_time))
-    ans = ""
-    for row in cur:
-        subject_name, day_of_the_week, time_of_start = row
-        ans += subject_name
-        ans += ", "
-        ans += day_of_the_week
-        ans += ", "
-        ans += str(time_of_start)
-    if ans != "":
-        return ans
-    else:
-        return "There are no more lessons today"
+                GROUP BY timetable.subject_name, timetable.day_of_the_week, timetable.time_of_start
+                ORDER BY timetable.time_of_start
+                LIMIT(1)''', (current_day, current_time))
+        ans = ""
+        for row in cur:
+            subject_name, day_of_the_week, time_of_start = row
+            ans = ", ".join([subject_name, day_of_the_week, str(time_of_start)])
+        if ans != "":
+            return ans
+        else:
+            return "There are no more lessons today"
+
 
 
 
 if __name__ == "__main__":
-    PORT = '5000'
     app.run('127.0.0.1', PORT, debug=True, threaded=True)
