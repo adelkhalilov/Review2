@@ -12,7 +12,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     subs = parser.add_subparsers(dest='action', required=True)
     add = subs.add_parser('add_lesson', help='Add_lesson')
-    add.add_argument('--subject-name', help='subject_name')
+    add.add_argument('--subject-name', dest='subject_name', help='subject_name')
     add.add_argument('--day-of-the-week', dest='day_of_the_week', help='Day_of_the_week from {Monday, Tuesday, ... , Sunday}')
     add.add_argument('--time-of-start', dest='time_of_start', help='Time_of_start in format hh:mm')
     get_lessons = subs.add_parser('get_lessons', help='Get_lessons')
