@@ -1,7 +1,8 @@
 import flask
 from flask import Flask
 import psycopg2
-from config import params, PORT
+from config import params, PORT, numday
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -11,11 +12,13 @@ def add_lesson():
     subject_name_ = flask.request.args['subject_name']
     day_of_the_week_ = flask.request.args['day_of_the_week']
     time_of_start_ = flask.request.args['time_of_start']
+    time = datetime.strptime(time_of_start_, '%H:%M')
+    id = int(time.strftime("%M")) + int(time.strftime("%H")) * 60 + numday[day_of_the_week_] * 24 * 60
     with psycopg2.connect(**params) as conn:
         cur = conn.cursor()
         cur.execute('''
-            INSERT INTO timetable (subject_name, day_of_the_week, time_of_start) VALUES
-                (%s, %s, %s)''', (str(subject_name_), str(day_of_the_week_), str(time_of_start_), ))
+            INSERT INTO timetable (subject_name, day_of_the_week, time_of_start, id) VALUES
+                (%s, %s, %s, %s)''', (str(subject_name_), str(day_of_the_week_), str(time_of_start_), id))
         conn.commit()
     return 'OK'
 
@@ -24,15 +27,19 @@ def add_lesson():
 def get_lessons():
     with psycopg2.connect(**params) as conn:
         cur = conn.cursor()
-        cur.execute('''SELECT DISTINCT * FROM timetable''')
+        cur.execute('''SELECT DISTINCT subject_name, day_of_the_week, time_of_start, id
+                       FROM timetable
+                       ORDER BY id''')
     a = cur.fetchall()
     ans = ""
+    print(a)
     for y in a:
         for i in y:
             j = str(i)
             ans += j[0:len(j)]
             ans += ', '
-        ans = ans[0: len(ans) - 2]
+        ans = ans[0: len(ans) - 2 - len(str(y[len(y) - 1])) - 2]
+        print(ans)
         ans += '\n'
     return ans
 
@@ -41,7 +48,6 @@ def get_lessons():
 def get_next_lesson():
     current_day = flask.request.args['current_day']
     current_time = flask.request.args['current_time']
-    # params = dict(dbname="test", user="postgres", password="1234", host="localhost")
     with psycopg2.connect(**params) as conn:
         cur = conn.cursor()
         cur.execute('''SELECT timetable.subject_name, timetable.day_of_the_week, MIN(timetable.time_of_start)
