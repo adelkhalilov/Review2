@@ -32,14 +32,12 @@ def get_lessons():
                        ORDER BY id''')
     a = cur.fetchall()
     ans = ""
-    print(a)
     for y in a:
         for i in y:
             j = str(i)
             ans += j[0:len(j)]
             ans += ', '
         ans = ans[0: len(ans) - 2 - len(str(y[len(y) - 1])) - 2]
-        print(ans)
         ans += '\n'
     return ans
 
